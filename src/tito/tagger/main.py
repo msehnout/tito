@@ -133,8 +133,27 @@ class VersionTagger(ConfigObject):
         self._check_tag_does_not_exist(self._get_new_tag(new_version))
         self._update_changelog(new_version)
         self._update_setup_py(new_version)
+        debug("Trying to run Cargo update")
+        self._update_cargo_toml(new_version)
         self._update_pom_xml(new_version)
         self._update_package_metadata(new_version)
+
+    def _update_cargo_toml(self, new_version):
+        """
+        xxx
+        """
+        setup_file = os.path.join(self.full_project_dir, "Cargo.toml")
+        if not os.path.exists(setup_file):
+            return
+
+        debug("Found Cargo.toml, attempting to update version.")
+
+        # We probably don't want version-release in setup.py as release is
+        # an rpm concept. Hopefully this assumption on
+        py_new_version = new_version.split('-')[0]
+        with open("Cargo.toml", "a") as myfile:
+            myfile.write("version: " + py_new_version)
+
 
     def _undo(self):
         """
